@@ -1,0 +1,61 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+}
+
+#wrap {
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	width: 100vw;
+	height: 100vh;
+}
+
+#infoArea {
+	display: flex;
+	justify-content: space-around;
+	min-height: 30px;
+}
+
+#info1, #info2 {
+	padding: 4px;
+}
+
+#file1, #file2 {
+	color: blue;
+}
+
+#printArea {
+	flex-grow: 1;
+	display: flex;
+	justify-content: space-around;
+	padding-top: 10px;
+}
+
+#print1, #print2 {
+	border: 1px solid #ddd;
+	width: 48vw;
+	overflow-y: auto;
+	font-family: monospace;
+}
+
+#templates {
+	display: none;
+}
+
+.byte {
+	display: inline-block;
+	padding: 2px 4px;
+	cursor: pointer;
+}
+
+.byteDiff {
+	background-color: gold;
+}
+
+.bytePointed {
+	background-color: #ccc;
+}
