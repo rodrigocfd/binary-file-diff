@@ -55,7 +55,7 @@ function printBytes(dv, pos) {
 	}
 	$('#print' + pos).data('bytes', bytes)
 		.empty().append($boxes);
-	$('#diff1,#diff2').text(diffCount);
+	$('#diffCount').text(diffCount);
 }
 
 function hoverIn(ev, pos) {
@@ -63,7 +63,7 @@ function hoverIn(ev, pos) {
 	var idx = $box.index();
 	$box.add('#print' + (pos === 1 ? 2 : 1) + ' .byte:eq('+ idx + ')')
 		.addClass('bytePointed');
-	$('#off1,#off2').text(idx);
+	$('#off').text(idx);
 }
 
 function hoverOut(ev, pos) {

@@ -4,6 +4,7 @@
 
 body {
 	margin: 0;
+	font: 10pt Arial;
 }
 
 #wrap {
@@ -14,36 +15,33 @@ body {
 	height: 100vh;
 }
 
-#infoArea {
+#infoRow {
 	display: flex;
 	justify-content: space-around;
 	min-height: 30px;
 }
 
-#info1, #info2 {
+#infoRow > div {
 	padding: 4px;
 }
 
 #file1, #file2 {
-	color: blue;
+	color: cornflowerblue;
+	font-weight: bold;
 }
 
-#printArea {
+#printRow {
 	flex-grow: 1;
 	display: flex;
 	justify-content: space-around;
 	padding-top: 10px;
 }
 
-#print1, #print2 {
+#printRow > div {
 	border: 1px solid #ddd;
 	width: 48vw;
 	overflow-y: auto;
 	font-family: monospace;
-}
-
-#templates {
-	display: none;
 }
 
 .byte {
