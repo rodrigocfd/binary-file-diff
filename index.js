@@ -1,13 +1,13 @@
 'use strict';
 
 $(document).ready(function() {
-	$('#byte1,#byte2').on('dragenter dragover', function(ev) { ev.preventDefault(); });
-	$('#byte1').on('drop', function(ev) { loadFile(ev, 1); });
-	$('#byte2').on('drop', function(ev) { loadFile(ev, 2); });
-	$('#byte1').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 1) });
-	$('#byte2').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 2) });
-	$('#byte1').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 1) });
-	$('#byte2').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 2) });
+	$('#byte1,#byte2,#real1,#real2').on('dragenter dragover', function(ev) { ev.preventDefault(); });
+	$('#byte1,#real1').on('drop', function(ev) { loadFile(ev, 1); });
+	$('#byte2,#real2').on('drop', function(ev) { loadFile(ev, 2); });
+	$('#byte1,#real1').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 1) });
+	$('#byte2,#real2').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 2) });
+	$('#byte1,#real1').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 1) });
+	$('#byte2,#real2').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 2) });
 	$('#byte1').on('scroll', function() { $('#byte2,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#byte2').on('scroll', function() { $('#byte1,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#real1').on('scroll', function() { $('#byte1,#byte2,#real2').scrollTop($(this).scrollTop()); });
