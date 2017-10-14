@@ -17,12 +17,14 @@ body {
 
 #infoRow {
 	display: flex;
-	justify-content: space-around;
+	justify-content: center;
 	min-height: 30px;
 }
 
 #infoRow > div {
 	padding: 4px;
+	border: 1px solid #ddd;
+	margin: 0 4px;
 }
 
 #file1, #file2 {

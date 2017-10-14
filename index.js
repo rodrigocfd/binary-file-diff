@@ -4,15 +4,18 @@ $(document).ready(function() {
 	$('#byte1,#byte2,#real1,#real2').on('dragenter dragover', function(ev) { ev.preventDefault(); });
 	$('#byte1,#real1').on('drop', function(ev) { loadFile(ev, 1); });
 	$('#byte2,#real2').on('drop', function(ev) { loadFile(ev, 2); });
-	$('#byte1,#real1').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 1) });
-	$('#byte2,#real2').on('mouseenter', '.byte', function(ev) { hoverIn(ev, 2) });
-	$('#byte1,#real1').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 1) });
-	$('#byte2,#real2').on('mouseleave', '.byte', function(ev) { hoverOut(ev, 2) });
+	$('#byte1,#real1').on('mouseenter', '.byte, .real', function(ev) { hoverIn(ev, 1) });
+	$('#byte2,#real2').on('mouseenter', '.byte, .real', function(ev) { hoverIn(ev, 2) });
+	$('#byte1,#real1').on('mouseleave', '.byte, .real', function(ev) { hoverOut(ev, 1) });
+	$('#byte2,#real2').on('mouseleave', '.byte, .real', function(ev) { hoverOut(ev, 2) });
 	$('#byte1').on('scroll', function() { $('#byte2,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#byte2').on('scroll', function() { $('#byte1,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#real1').on('scroll', function() { $('#byte1,#byte2,#real2').scrollTop($(this).scrollTop()); });
 	$('#real2').on('scroll', function() { $('#byte1,#byte2,#real1').scrollTop($(this).scrollTop()); });
 });
+
+var dv1 = null;
+var dv2 = null;
 
 function loadFile(ev, pos) {
 	ev.preventDefault();
@@ -21,7 +24,8 @@ function loadFile(ev, pos) {
 	var re = new FileReader();
 	re.onloadend = function(ev) {
 		var bigBlob = ev.target.result;
-		var dv = new DataView(bigBlob);
+		var dv = pos === 1 ? dv1 : dv2;
+		dv = new DataView(bigBlob);
 		$('#size' + pos).text(dv.byteLength);
 		printBytes(dv, pos);
 		$('#byte1,#byte2').scrollTop(0);
@@ -85,6 +89,7 @@ function hoverIn(ev, pos) {
 	$('#byte1 .byte:eq(' + idx + '), #byte2 .byte:eq(' + idx + '), ' +
 		'#real1 .real:eq(' + idx + '), #real2 .real:eq(' + idx + ')').addClass('pointed');
 	$('#off').text(idx);
+
 }
 
 function hoverOut(ev, pos) {
