@@ -2,96 +2,113 @@
 
 $(document).ready(function() {
 	$('#byte1,#byte2,#real1,#real2').on('dragenter dragover', function(ev) { ev.preventDefault(); });
-	$('#byte1,#real1').on('drop', function(ev) { loadFile(ev, 1); });
-	$('#byte2,#real2').on('drop', function(ev) { loadFile(ev, 2); });
-	$('#byte1,#real1').on('mouseenter', '.byte, .real', function(ev) { hoverIn(ev, 1) });
-	$('#byte2,#real2').on('mouseenter', '.byte, .real', function(ev) { hoverIn(ev, 2) });
-	$('#byte1,#real1').on('mouseleave', '.byte, .real', function(ev) { hoverOut(ev, 1) });
-	$('#byte2,#real2').on('mouseleave', '.byte, .real', function(ev) { hoverOut(ev, 2) });
+	$('#byte1,#real1').on('drop', function(ev) { loadBin(ev, 1); });
+	$('#byte2,#real2').on('drop', function(ev) { loadBin(ev, 2); });
+	$('#byte1,#real1').on('mouseenter', '.byte, .real', function(ev) { bin[1].onIn(ev) });
+	$('#byte2,#real2').on('mouseenter', '.byte, .real', function(ev) { bin[2].onIn(ev) });
+	$('#byte1,#real1').on('mouseleave', '.byte, .real', function(ev) { bin[1].onOut(ev) });
+	$('#byte2,#real2').on('mouseleave', '.byte, .real', function(ev) { bin[2].onOut(ev) });
 	$('#byte1').on('scroll', function() { $('#byte2,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#byte2').on('scroll', function() { $('#byte1,#real1,#real2').scrollTop($(this).scrollTop()); });
 	$('#real1').on('scroll', function() { $('#byte1,#byte2,#real2').scrollTop($(this).scrollTop()); });
 	$('#real2').on('scroll', function() { $('#byte1,#byte2,#real1').scrollTop($(this).scrollTop()); });
 });
 
-var dv1 = null;
-var dv2 = null;
+let bin = ['UNUSED', null, null];
 
-function loadFile(ev, pos) {
+function loadBin(ev, idx) {
 	ev.preventDefault();
-	var file = ev.originalEvent.dataTransfer.files[0];
-	$('#file' + pos).text(file.name);
-	var re = new FileReader();
-	re.onloadend = function(ev) {
-		var bigBlob = ev.target.result;
-		var dv = pos === 1 ? dv1 : dv2;
-		dv = new DataView(bigBlob);
-		$('#size' + pos).text(dv.byteLength);
-		printBytes(dv, pos);
-		$('#byte1,#byte2').scrollTop(0);
-	};
-	re.readAsArrayBuffer(file);
+	bin[idx] = new BinFile(idx, ev.originalEvent.dataTransfer.files[0]);
 }
 
-var hexStrs1 = [];
-var hexStrs2 = [];
+class BinFile {
+	constructor(idx, file) {
+		this.idx = idx;
+		this.dv = null;
+		this.$byte = [];
+		this.$real = [];
+		this.loadDataView(file);
+	}
 
-function printBytes(dv, pos) {
-	$('.diffed').removeClass('diffed');
-	$('.pointed').removeClass('pointed');
+	loadDataView(file) {
+		$('#file' + this.idx).text(file.name);
+		let re = new FileReader();
+		re.onloadend = (ev) => {
+			let bigBlob = ev.target.result;
+			this.dv = new DataView(bigBlob);
+			$('#size' + this.idx).text(this.dv.byteLength);
+			this.printByteAndReal();
+			$('#byte1,#byte2').scrollTop(0);
+		};
+		re.readAsArrayBuffer(file);
+	}
 
-	var $otherByte = $('#byte' + (pos === 1 ? 2 : 1));
-	var $otherBytes = $otherByte.find('.byte');
-	var $otherReal = $('#real' + (pos === 1 ? 2 : 1));
-	var $otherReals = $otherReal.find('.real');
+	get otherBin() {
+		return bin[this.idx === 1 ? 2 : 1];
+	}
 
-	var diffCount = 0;
-	var $newBytes = [];
-	var $newReals = [];
-	var hasOtherFileLoaded = $otherBytes.length > 0;
-	var otherHexStrs = (pos === 1 ? hexStrs2 : hexStrs1);
-	var newHexStrs = (pos === 1 ? hexStrs1 : hexStrs2);
-	newHexStrs.length = 0;
+	printByteAndReal() {
+		let diffCount = 0;
 
-	for (var i = 0; i < dv.byteLength; ++i) {
-		var num = dv.getUint8(i);
-		var disp = (num < 0x10 ? '0' : '') + num.toString(16);
-		newHexStrs.push(disp);
-
-		var isDiff = hasOtherFileLoaded && disp !== otherHexStrs[i];
-		var $byteStr = $(document.createElement('div'));
-		$byteStr.addClass('byte')
-			.toggleClass('zero', num == 0)
-			.text(disp);
-		if (isDiff) {
-			$byteStr.add($otherBytes.get(i)).addClass('diffed');
-			++diffCount;
+		for (let i = 0; i < this.dv.byteLength; ++i) {
+			let num = this.dv.getUint8(i);
+			this.$byte.push(this.createByteCell(num));
+			this.$real.push(this.createRealCell(num));
+			if (this.isDiff(i, num)) {
+				++diffCount;
+				this.paintDiffCell(i);
+			}
 		}
-		$newBytes.push($byteStr);
 
-		var $realStr = $(document.createElement('div'));
-		$realStr.addClass('real')
+		$('#byte' + this.idx).empty().append(this.$byte);
+		$('#real' + this.idx).empty().append(this.$real);
+		$('#diffCount').text(diffCount);
+	}
+
+	createByteCell(num) {
+		let $byte = $(document.createElement('div'));
+		$byte.addClass('byte')
+			.toggleClass('zero', num == 0)
+			.text((num < 0x10 ? '0' : '') + num.toString(16));
+		return $byte;
+	}
+
+	createRealCell(num) {
+		let $real = $(document.createElement('div'));
+		$real.addClass('real')
 			.toggleClass('zero', num == 0)
 			.html(num >= 33 ? String.fromCharCode(num) : '&nbsp;');
-		if (isDiff) {
-			$realStr.add($otherReals.get(i)).addClass('diffed');
-		}
-		$newReals.push($realStr);
+		return $real;
 	}
-	$('#byte' + pos).empty().append($newBytes);
-	$('#real' + pos).empty().append($newReals);
-	$('#diffCount').text(diffCount);
-}
 
-function hoverIn(ev, pos) {
-	var $byteOrReal = $(ev.target);
-	var idx = $byteOrReal.index();
-	$('#byte1 .byte:eq(' + idx + '), #byte2 .byte:eq(' + idx + '), ' +
-		'#real1 .real:eq(' + idx + '), #real2 .real:eq(' + idx + ')').addClass('pointed');
-	$('#off').text(idx);
+	isDiff(i, num) {
+		return this.otherBin &&
+			this.otherBin.dv.byteLength > i &&
+			num !== this.otherBin.dv.getUint8(i);
+	}
 
-}
+	paintDiffCell(i) {
+		this.$byte[i]
+			.add(this.$real[i])
+			.add(this.otherBin.$byte[i])
+			.add(this.otherBin.$real[i])
+			.addClass('diffed');
+	}
 
-function hoverOut(ev, pos) {
-	$('.pointed').removeClass('pointed');
+	onIn(ev) {
+		if (this.$byte.length) {
+			let $cell = $(ev.target);
+			let i = $cell.index();
+			this.$byte[i]
+				.add(this.$real[i])
+				.add(this.otherBin ? this.otherBin.$byte[i] : null)
+				.add(this.otherBin ? this.otherBin.$real[i] : null)
+				.addClass('pointed');
+			$('#off').text(i);
+		}
+	}
+
+	onOut(ev) {
+		$('.pointed').removeClass('pointed');
+	}
 }
