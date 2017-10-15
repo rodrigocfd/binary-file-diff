@@ -48,8 +48,8 @@ class BinFile {
 	}
 
 	printByteAndReal() {
+		$('.diffed').removeClass('diffed');
 		let diffCount = 0;
-
 		for (let i = 0; i < this.dv.byteLength; ++i) {
 			let num = this.dv.getUint8(i);
 			this.$byte.push(this.createByteCell(num));
@@ -59,26 +59,25 @@ class BinFile {
 				this.paintDiffCell(i);
 			}
 		}
-
 		$('#byte' + this.idx).empty().append(this.$byte);
 		$('#real' + this.idx).empty().append(this.$real);
 		$('#diffCount').text(diffCount);
 	}
 
 	createByteCell(num) {
-		let $byte = $(document.createElement('div'));
-		$byte.addClass('byte')
+		let $byteCell = $(document.createElement('div'));
+		$byteCell.addClass('byte')
 			.toggleClass('zero', num == 0)
 			.text((num < 0x10 ? '0' : '') + num.toString(16));
-		return $byte;
+		return $byteCell;
 	}
 
 	createRealCell(num) {
-		let $real = $(document.createElement('div'));
-		$real.addClass('real')
+		let $realCell = $(document.createElement('div'));
+		$realCell.addClass('real')
 			.toggleClass('zero', num == 0)
 			.html(num >= 33 ? String.fromCharCode(num) : '&nbsp;');
-		return $real;
+		return $realCell;
 	}
 
 	isDiff(i, num) {
@@ -95,6 +94,44 @@ class BinFile {
 			.addClass('diffed');
 	}
 
+	displayParsed(i) {
+		let displayForBin = (bin) => {
+			let displayEmpty = (selector1, selector2) => {
+				$(selector1 + bin.idx).html('&nbsp;');
+				if (selector2) {
+					$(selector2 + bin.idx).html('&nbsp;');
+				}
+			};
+			if (bin.dv.byteLength > i) {
+				$('#uint8' + bin.idx).text(bin.dv.getUint8(i).toString(10));
+			} else {
+				displayEmpty('#uint8');
+			}
+			if (bin.dv.byteLength - 1 > i) {
+				$('#uint16le' + bin.idx).text(bin.dv.getUint16(i, true).toString(10));
+				$('#uint16be' + bin.idx).text(bin.dv.getUint16(i, false).toString(10));
+			} else {
+				displayEmpty('#uint16le', '#uint16be');
+			}
+			if (bin.dv.byteLength - 3 > i) {
+				$('#uint32le' + bin.idx).text(bin.dv.getUint32(i, true).toString(10));
+				$('#uint32be' + bin.idx).text(bin.dv.getUint32(i, false).toString(10));
+			} else {
+				displayEmpty('#uint32le', '#uint32be');
+			}
+			if (bin.dv.byteLength - 3 > i) {
+				$('#float32le' + bin.idx).text(bin.dv.getFloat32(i, true).toFixed(4));
+				$('#float32be' + bin.idx).text(bin.dv.getFloat32(i, false).toFixed(4));
+			} else {
+				displayEmpty('#float32le', '#float32be');
+			}
+		};
+		displayForBin(this);
+		if (this.otherBin) {
+			displayForBin(this.otherBin);
+		}
+	}
+
 	onIn(ev) {
 		if (this.$byte.length) {
 			let $cell = $(ev.target);
@@ -105,6 +142,7 @@ class BinFile {
 				.add(this.otherBin ? this.otherBin.$real[i] : null)
 				.addClass('pointed');
 			$('#off').text(i);
+			this.displayParsed(i);
 		}
 	}
 
