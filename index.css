@@ -1,4 +1,4 @@
-* { box-sizing:border-box; }
+*, *:before, *:after { box-sizing:border-box; }
 body,table { margin:0; font:10pt Arial; }
 #bodyWrap { display:flex; flex-direction:column; padding:10px; width:100vw; height:100vh; }
 
@@ -11,7 +11,7 @@ body,table { margin:0; font:10pt Arial; }
 		#infobox2 th, #infobox2 td { font-weight:normal; border:1px solid #ddd; }
 		#infobox2 td { text-align:right; padding-right:8px; }
 
-#printRow { flex-grow:1; display:flex; padding-top:10px; }
+#printRow { flex-grow:1; display:flex; overflow:hidden; padding-top:10px; }
 	#printRow > div { border:1px solid #ddd; overflow-y:auto; font-family:monospace; margin:0 2px; }
 
 	#byte1, #byte2 { width:calc(16 * 20px + 20px); }
