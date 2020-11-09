@@ -1,5 +1,7 @@
-Quick online binary file comparison, a consequence of [Atwood's Law](https://blog.codinghorror.com/the-principle-of-least-power/).
+# Binary file diff
 
-Available live at: [rodrigocfd.github.io/binary-file-diff](https://rodrigocfd.github.io/binary-file-diff/)
+Here: https://rodrigocfd.github.io/binary-file-diff
 
-Published under [MIT license](https://opensource.org/licenses/MIT).
+Drag two binary files into the page, and compare the, side by side.
+
+A consequence of [Atwood's Law](https://blog.codinghorror.com/the-principle-of-least-power/).
